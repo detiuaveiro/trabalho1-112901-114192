@@ -1,3 +1,5 @@
+//olá
+
 /// image8bit - A simple image processing module.
 ///
 /// This module is part of a programming project
