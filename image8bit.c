@@ -1,4 +1,3 @@
-//olá Diogo
 
 /// image8bit - A simple image processing module.
 ///
