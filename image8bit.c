@@ -420,9 +420,27 @@ void ImageBrighten(Image img, double factor) { ///
 /// On success, a new image is returned.
 /// (The caller is responsible for destroying the returned image!)
 /// On failure, returns NULL and errno/errCause are set accordingly.
-Image ImageRotate(Image img) { ///
-  assert (img != NULL);
-  // Insert your code here!
+Image ImageRotate(Image img) {
+  assert(img != NULL);
+
+  int newWidth = img->height;
+  int newHeight = img->width;
+
+  //criar a imagem com as novas dimensões (trocadas em relacao a imagem original)
+  Image rotateImg = ImageCreate(newWidth, newHeight, img->maxval);
+  if (rotateImg == NULL) {
+    return NULL; // Allocation failed
+  }
+
+  // percorrer os pixeis da imagem original
+  for (int y = 0; y < img->height; y++) {
+    for (int x = 0; x < img->width; x++) {
+      uint8 pixelValue = ImageGetPixel(img, x, y);
+      ImageSetPixel(rotateImg, y, img->width - 1 - x, pixelValue);
+    }
+  }
+
+  return rotateImg;
 }
 
 /// Mirror an image = flip left-right.
@@ -432,9 +450,22 @@ Image ImageRotate(Image img) { ///
 /// On success, a new image is returned.
 /// (The caller is responsible for destroying the returned image!)
 /// On failure, returns NULL and errno/errCause are set accordingly.
-Image ImageMirror(Image img) { ///
-  assert (img != NULL);
-  // Insert your code here!
+Image ImageMirror(Image img) {
+  assert(img != NULL);
+
+  Image mirroredImg = ImageCreate(img->width, img->height, img->maxval);
+  if (mirroredImg == NULL) {
+    return NULL; // Allocation failed
+  }
+
+  for (int y = 0; y < img->height; y++) {
+    for (int x = 0; x < img->width; x++) {
+      uint8 pixelValue = ImageGetPixel(img, x, y);
+      ImageSetPixel(mirroredImg, img->width - 1 - x, y, pixelValue);
+    }
+  }
+
+  return mirroredImg;
 }
 
 /// Crop a rectangular subimage from img.
