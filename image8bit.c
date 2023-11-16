@@ -429,14 +429,14 @@ Image ImageRotate(Image img) {
   //criar a imagem com as novas dimensões (trocadas em relacao a imagem original)
   Image rotateImg = ImageCreate(newWidth, newHeight, img->maxval);
   if (rotateImg == NULL) {
-    return NULL; // Allocation failed
+    return NULL; // falha ao alocar memoria
   }
 
   // percorrer os pixeis da imagem original
   for (int y = 0; y < img->height; y++) {
     for (int x = 0; x < img->width; x++) {
-      uint8 pixelValue = ImageGetPixel(img, x, y);
-      ImageSetPixel(rotateImg, y, img->width - 1 - x, pixelValue);
+      uint8 pixelValue = ImageGetPixel(img, x, y);      //obter o valor de cada pixel da imagem original
+      ImageSetPixel(rotateImg, y, img->width - 1 - x, pixelValue);       //colocar o valor de cada pixel na nova imagem (imagem ja rotacionada-dimensoes trocadas)
     }
   }
 
@@ -455,13 +455,14 @@ Image ImageMirror(Image img) {
 
   Image mirroredImg = ImageCreate(img->width, img->height, img->maxval);
   if (mirroredImg == NULL) {
-    return NULL; // Allocation failed
+    return NULL; // falha ao alocar memoria
   }
 
+  // percorrer os pixeis da imagem original
   for (int y = 0; y < img->height; y++) {
     for (int x = 0; x < img->width; x++) {
-      uint8 pixelValue = ImageGetPixel(img, x, y);
-      ImageSetPixel(mirroredImg, img->width - 1 - x, y, pixelValue);
+      uint8 pixelValue = ImageGetPixel(img, x, y);    //obter o valor de cada pixel da imagem original
+      ImageSetPixel(mirroredImg, img->width - 1 - x, y, pixelValue);    //colocar o valor de cada pixel na nova imagem
     }
   }
 
@@ -480,10 +481,25 @@ Image ImageMirror(Image img) {
 /// On success, a new image is returned.
 /// (The caller is responsible for destroying the returned image!)
 /// On failure, returns NULL and errno/errCause are set accordingly.
-Image ImageCrop(Image img, int x, int y, int w, int h) { ///
-  assert (img != NULL);
-  assert (ImageValidRect(img, x, y, w, h));
-  // Insert your code here!
+Image ImageCrop(Image img, int x, int y, int w, int h) {
+  assert(img != NULL);
+  assert(ImageValidRect(img, x, y, w, h));
+
+  //criar uma nova imagem (recortada) com largura w, altura h e o mesmo valor de maxval (da imagem original) que cada pixel pode assumir
+  Image cropImg = ImageCreate(w, h, img->maxval);
+  if (cropImg == NULL) {
+    return NULL; // falha ao alocar memoria
+  }
+
+  // percorrer os pixeis da imagem original
+  for (int j = 0; j < h; j++) {
+    for (int i = 0; i < w; i++) {
+      uint8 pixelValue = ImageGetPixel(img, x + i, y + j);    //com a funcao 'ImageGetPixel' obtemos o valor de cada pixel da imagem original
+      ImageSetPixel(cropImg, i, j, pixelValue);     // com a funcao 'ImageSetPixel' definimos o valor de cada pixel na nova imagem, na posiçao (i,j)
+    }
+  }
+
+  return cropImg;
 }
 
 
