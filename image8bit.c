@@ -509,11 +509,19 @@ Image ImageCrop(Image img, int x, int y, int w, int h) {
 /// Paste img2 into position (x, y) of img1.
 /// This modifies img1 in-place: no allocation involved.
 /// Requires: img2 must fit inside img1 at position (x, y).
-void ImagePaste(Image img1, int x, int y, Image img2) { ///
-  assert (img1 != NULL);
-  assert (img2 != NULL);
-  assert (ImageValidRect(img1, x, y, img2->width, img2->height));
-  // Insert your code here!
+void ImagePaste(Image img1, int x, int y, Image img2) {
+    assert(img1 != NULL);
+    assert(img2 != NULL);
+    //verificar se a img2 cabe dentro da img1 na posiçao (x,y)
+    assert(ImageValidRect(img1, x, y, img2->width, img2->height));
+
+    // percorrer os pixeis da img2
+    for (int j = 0; j < img2->height; j++) {
+        for (int i = 0; i < img2->width; i++) {
+            uint8 pixelValue = ImageGetPixel(img2, i, j);   //obter o valor de cada pixel da img2, na posiçao (i,j)
+            ImageSetPixel(img1, x + i, y + j, pixelValue);    //colocar o valor de cada pixel da img2 na img1, na posiçao (x+i, y+j)
+        }
+    }
 }
 
 /// Blend an image into a larger image.
@@ -522,12 +530,26 @@ void ImagePaste(Image img1, int x, int y, Image img2) { ///
 /// Requires: img2 must fit inside img1 at position (x, y).
 /// alpha usually is in [0.0, 1.0], but values outside that interval
 /// may provide interesting effects.  Over/underflows should saturate.
-void ImageBlend(Image img1, int x, int y, Image img2, double alpha) { ///
-  assert (img1 != NULL);
-  assert (img2 != NULL);
-  assert (ImageValidRect(img1, x, y, img2->width, img2->height));
-  // Insert your code here!
+void ImageBlend(Image img1, int x, int y, Image img2, double alpha) {
+    assert(img1 != NULL);
+    assert(img2 != NULL);
+    //para garantir que a img2 cabe dentro da img1 na posiçao (x,y)
+    assert(ImageValidRect(img1, x, y, img2->width, img2->height));
+
+    for (int j = 0; j < img2->height; j++) {
+        for (int i = 0; i < img2->width; i++) {
+            uint8 pixelValue1 = ImageGetPixel(img1, x + i, y + j);    //obter o valor de cada pixel da imagem img1, na posiçao (x+i, y+j)
+            uint8 pixelValue2 = ImageGetPixel(img2, i, j);    //obter o valor de cada pixel da imagem img2, na posiçao (i,j)
+
+            // Perform the blending
+            uint8 blendedValue = (uint8)(alpha * pixelValue2 + (1.0 - alpha) * pixelValue1);
+
+            //define o valor de cada pixel da imagem img1, na posiçao (x+i, y+j), como um "blendedValue"
+            ImageSetPixel(img1, x + i, y + j, blendedValue);
+        }
+    }
 }
+
 
 /// Compare an image to a subimage of a larger image.
 /// Returns 1 (true) if img2 matches subimage of img1 at pos (x, y).
