@@ -534,8 +534,7 @@ void ImagePaste(Image img1, int x, int y, Image img2) {
     // percorrer os pixeis da img2
     for (int j = 0; j < img2->height; j++) {
         for (int i = 0; i < img2->width; i++) {
-            uint8 pixelValue = ImageGetPixel(img2, i, j);   //obter o valor de cada pixel da img2, na posiçao (i,j)
-            ImageSetPixel(img1, x + i, y + j, pixelValue);    //colocar o valor de cada pixel da img2 na img1, na posiçao (x+i, y+j)
+          img1->pixel[(y + j) * img1->width + (x + i)] = img2->pixel[j * img2->width + i];//
         }
     }
 }
