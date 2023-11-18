@@ -328,6 +328,14 @@ int ImageValidPos(Image img, int x, int y) { ///
 int ImageValidRect(Image img, int x, int y, int w, int h) { ///
   assert (img != NULL);
   // Insert your code here!
+  for (int i = x; i < x + w; i++) {
+    for (int j = y; j < y + h; j++) {
+      if (!ImageValidPos(img, i, j)) {
+        return 0;
+      }
+    }
+  }
+  return 1;
 }
 
 /// Pixel get & set operations
@@ -495,21 +503,19 @@ Image ImageCrop(Image img, int x, int y, int w, int h) {
   assert(img != NULL);
   assert(ImageValidRect(img, x, y, w, h));
 
-  //criar uma nova imagem (recortada) com largura w, altura h e o mesmo valor de maxval (da imagem original) que cada pixel pode assumir
+  //criar uma nova imagem com as dimensoes do retangulo
   Image cropImg = ImageCreate(w, h, img->maxval);
   if (cropImg == NULL) {
     return NULL; // falha ao alocar memoria
   }
 
-  // percorrer os pixeis da imagem original
-  for (int j = 0; j < h; j++) {
-    for (int i = 0; i < w; i++) {
-      uint8 pixelValue = ImageGetPixel(img, x + i, y + j);    //com a funcao 'ImageGetPixel' obtemos o valor de cada pixel da imagem original
-      ImageSetPixel(cropImg, i, j, pixelValue);     // com a funcao 'ImageSetPixel' definimos o valor de cada pixel na nova imagem, na posiçao (i,j)
+    for (int i = 0; i < h; i++) {
+        for (int j = 0; j < w; j++) {
+            cropImg->pixel[i * w + j] = img->pixel[(y + i) * img->width + (x + j)];
+        }
     }
-  }
 
-  return cropImg;
+    return cropImg;
 }
 
 
