@@ -464,20 +464,19 @@ Image ImageRotate(Image img) {
 Image ImageMirror(Image img) {
   assert(img != NULL);
 
-  Image mirroredImg = ImageCreate(img->width, img->height, img->maxval);
-  if (mirroredImg == NULL) {
+  //criar uma nova imagem com as mesmas dimensoes da imagem original
+  Image mirrorImg = ImageCreate(img->width, img->height, img->maxval);
+  if (mirrorImg == NULL) {
     return NULL; // falha ao alocar memoria
   }
-
-  // percorrer os pixeis da imagem original
-  for (int y = 0; y < img->height; y++) {
-    for (int x = 0; x < img->width; x++) {
-      uint8 pixelValue = ImageGetPixel(img, x, y);    //obter o valor de cada pixel da imagem original
-      ImageSetPixel(mirroredImg, img->width - 1 - x, y, pixelValue);    //colocar o valor de cada pixel na nova imagem
+  
+    for (int i = 0; i < img->height; i++) {
+        for (int j = 0; j < img->width; j++) {
+            mirrorImg->pixel[i * img->width + j] = img->pixel[i * img->width + (img->width - 1 - j)];
+        }
     }
-  }
 
-  return mirroredImg;
+    return mirrorImg;
 }
 
 /// Crop a rectangular subimage from img.
