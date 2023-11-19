@@ -440,26 +440,23 @@ void ImageBrighten(Image img, double factor) { ///
 /// (The caller is responsible for destroying the returned image!)
 /// On failure, returns NULL and errno/errCause are set accordingly.
 Image ImageRotate(Image img) {
-  assert(img != NULL);
-
-  int newWidth = img->height;
-  int newHeight = img->width;
-
-  //criar a imagem com as novas dimensões (trocadas em relacao a imagem original)
-  Image rotateImg = ImageCreate(newWidth, newHeight, img->maxval);
-  if (rotateImg == NULL) {
-    return NULL; // falha ao alocar memoria
-  }
-
-  // percorrer os pixeis da imagem original
-  for (int y = 0; y < img->height; y++) {
-    for (int x = 0; x < img->width; x++) {
-      uint8 pixelValue = ImageGetPixel(img, x, y);      //obter o valor de cada pixel da imagem original
-      ImageSetPixel(rotateImg, y, img->width - 1 - x, pixelValue);       //colocar o valor de cada pixel na nova imagem (imagem ja rotacionada-dimensoes trocadas)
+    if (img == NULL) {
+        return NULL;
     }
-  }
 
-  return rotateImg;
+    Image rotatedImage = ImageCreate(img->height, img->width, img->maxval);
+    if (rotatedImage == NULL) {
+        return NULL;
+    }
+
+    //percorrer os pixeis da img
+    for (int i = 0; i < img->height; ++i) {
+        for (int j = 0; j < img->width; ++j) {
+          rotatedImage->pixel[(rotatedImage->height - 1 - j) * rotatedImage->width + i] = img->pixel[i * img->width + j];
+        }
+    }
+
+    return rotatedImage;
 }
 
 /// Mirror an image = flip left-right.
