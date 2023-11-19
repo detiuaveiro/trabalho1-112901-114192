@@ -610,6 +610,11 @@ void ImageBlur(Image img, int dx, int dy) { ///
   assert (img != NULL);
   // Insert your code here!
   
-  
-}
+  Image imgBlur = ImageCreate(img->width, img->height, img->maxval);
+  if (imgBlur == NULL) {
+    return;
+  }
 
+  //completar
+
+}
