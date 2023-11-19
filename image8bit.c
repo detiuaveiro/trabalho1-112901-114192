@@ -561,10 +561,14 @@ void ImagePaste(Image img1, int x, int y, Image img2) {
 void ImageBlend(Image img1, int x, int y, Image img2, double alpha) {
     assert(img1 != NULL);
     assert(img2 != NULL);
-    //para garantir que a img2 cabe dentro da img1 na posiçao (x,y)
     assert(ImageValidRect(img1, x, y, img2->width, img2->height));
 
-    //completar
+    //A IMAGEM APARECE COMO SUPOSTO MAS DA ERRO1
+    for (int j = 0; j < img2->height; j++) {
+        for (int i = 0; i < img2->width; i++) {
+            img1->pixel[(y + j) * img1->width + (x + i)] = (uint8)(img1->pixel[(y + j) * img1->width + (x + i)] * (1 - alpha) + img2->pixel[j * img2->width + i] * alpha);
+        }
+    } 
 }
 
 
