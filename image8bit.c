@@ -551,18 +551,7 @@ void ImageBlend(Image img1, int x, int y, Image img2, double alpha) {
     //para garantir que a img2 cabe dentro da img1 na posiçao (x,y)
     assert(ImageValidRect(img1, x, y, img2->width, img2->height));
 
-    for (int j = 0; j < img2->height; j++) {
-        for (int i = 0; i < img2->width; i++) {
-            uint8 pixelValue1 = ImageGetPixel(img1, x + i, y + j);    //obter o valor de cada pixel da imagem img1, na posiçao (x+i, y+j)
-            uint8 pixelValue2 = ImageGetPixel(img2, i, j);    //obter o valor de cada pixel da imagem img2, na posiçao (i,j)
-
-            // Perform the blending
-            uint8 blendedValue = (uint8)(alpha * pixelValue2 + (1.0 - alpha) * pixelValue1);
-
-            //define o valor de cada pixel da imagem img1, na posiçao (x+i, y+j), como um "blendedValue"
-            ImageSetPixel(img1, x + i, y + j, blendedValue);
-        }
-    }
+    //completar
 }
 
 
@@ -574,6 +563,15 @@ int ImageMatchSubImage(Image img1, int x, int y, Image img2) { ///
   assert (img2 != NULL);
   assert (ImageValidPos(img1, x, y));
   // Insert your code here!
+
+  for (int i = 0; i < img2->height; i++) {
+    for (int j = 0; j < img2->width; j++) {
+      if (img1->pixel[(y + i) * img1->width + (x + j)] != img2->pixel[i * img2->width + j]) {
+        return 0;
+      }
+    }
+  }
+  return 1;
 }
 
 /// Locate a subimage inside another image.
@@ -584,6 +582,17 @@ int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) { ///
   assert (img1 != NULL);
   assert (img2 != NULL);
   // Insert your code here!
+
+  for (int i = 0; i < img1->height - img2->height; i++) {
+    for (int j = 0; j < img1->width - img2->width; j++) {
+      if (ImageMatchSubImage(img1, j, i, img2)) {
+        *px = j;
+        *py = i;
+        return 1;
+      }
+    }
+  }
+  return 0;
 }
 
 
@@ -594,6 +603,9 @@ int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) { ///
 /// [x-dx, x+dx]x[y-dy, y+dy].
 /// The image is changed in-place.
 void ImageBlur(Image img, int dx, int dy) { ///
+  assert (img != NULL);
   // Insert your code here!
+  
+  
 }
 
