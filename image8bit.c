@@ -626,27 +626,33 @@ void ImageBlur(Image img, int dx, int dy) {
     return;
   }
 
+  //percorrer os pixeis da imagem img
   for (int i = 0; i < img->height; i++) {
     for (int j = 0; j < img->width; j++) {
       int sum = 0;
       int count = 0;
+      //percorrer os pixeis dentro do retangulo (dx,dy)
       for (int k = i - dy; k <= i + dy; k++) {
         for (int l = j - dx; l <= j + dx; l++) {
           if (ImageValidPos(img, l, k)) { //verificar se a posicao de cada pixel esta dentro da imagem (validar a posiçao)
+            //para acumular a soma dos valores dos pixeis
             sum += img->pixel[k * img->width + l];
             count++;
           }
         }
       }   
+      //Calcular a media dos valores dos pixeis dentro do retangulo (dx,dy)
       blurImg->pixel[i * img->width + j] = (uint8)((sum + count * 0.5 )/ count);
     }
   }
 
+  //copiar os pixeis da imagem blurImg para a imagem img
   for (int i = 0; i < img->height; i++) {
     for (int j = 0; j < img->width; j++) {
       img->pixel[i * img->width + j] = blurImg->pixel[i * img->width + j];
     }
   }
 
+  //apagar a imagem blurImg para libertar a memoria alocada
   ImageDestroy(&blurImg);
 }
