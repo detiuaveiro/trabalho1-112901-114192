@@ -422,13 +422,12 @@ void ImageBrighten(Image img, double factor) {
   assert (img != NULL);
   assert (factor >= 0.0);
 
-  //ESTA A DAR ERRO
   for (int i = 0; i < img->width * img->height; i++) {
     if (img->pixel[i] * factor > img->maxval) {
       img->pixel[i] = img->maxval;
     }
     else {
-      img->pixel[i] = img->pixel[i] * factor;
+      img->pixel[i] = (uint8)img->pixel[i] * factor + 0.5;
     }
   }
 }
@@ -563,10 +562,10 @@ void ImageBlend(Image img1, int x, int y, Image img2, double alpha) {
     assert(img2 != NULL);
     assert(ImageValidRect(img1, x, y, img2->width, img2->height));
 
-    //A IMAGEM APARECE COMO SUPOSTO MAS DA ERRO1
     for (int j = 0; j < img2->height; j++) {
         for (int i = 0; i < img2->width; i++) {
-            img1->pixel[(y + j) * img1->width + (x + i)] = (uint8)(img1->pixel[(y + j) * img1->width + (x + i)] * (1 - alpha) + img2->pixel[j * img2->width + i] * alpha);
+          //podemos usar getpixel e setpixel
+            img1->pixel[(y + j) * img1->width + (x + i)] = (uint8)((img1->pixel[(y + j) * img1->width + (x + i)] * (1 - alpha) + img2->pixel[j * img2->width + i] * alpha) + 0.5);
         }
     } 
 }
