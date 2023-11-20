@@ -614,19 +614,39 @@ int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) { ///
 
 /// Filtering
 
-/// Blur an image by a applying a (2dx+1)x(2dy+1) mean filter.
+/// Blur an image by applying a (2dx+1)x(2dy+1) mean filter.
 /// Each pixel is substituted by the mean of the pixels in the rectangle
 /// [x-dx, x+dx]x[y-dy, y+dy].
 /// The image is changed in-place.
-void ImageBlur(Image img, int dx, int dy) { ///
-  assert (img != NULL);
-  // Insert your code here!
-  
-  Image imgBlur = ImageCreate(img->width, img->height, img->maxval);
-  if (imgBlur == NULL) {
+void ImageBlur(Image img, int dx, int dy) {
+  assert(img != NULL);
+
+  Image blurImg = ImageCreate(img->width, img->height, img->maxval);
+  if (blurImg == NULL) {
     return;
   }
 
-  //completar
+  for (int i = 0; i < img->height; i++) {
+    for (int j = 0; j < img->width; j++) {
+      int sum = 0;
+      int count = 0;
+      for (int k = i - dy; k <= i + dy; k++) {
+        for (int l = j - dx; l <= j + dx; l++) {
+          if (ImageValidPos(img, l, k)) { //verificar se a posicao de cada pixel esta dentro da imagem (validar a posiçao)
+            sum += img->pixel[k * img->width + l];
+            count++;
+          }
+        }
+      }   
+      blurImg->pixel[i * img->width + j] = (uint8)((sum + count * 0.5 )/ count);
+    }
+  }
 
+  for (int i = 0; i < img->height; i++) {
+    for (int j = 0; j < img->width; j++) {
+      img->pixel[i * img->width + j] = blurImg->pixel[i * img->width + j];
+    }
+  }
+
+  ImageDestroy(&blurImg);
 }
