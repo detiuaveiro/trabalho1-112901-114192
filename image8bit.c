@@ -434,14 +434,20 @@ void ImageThreshold(Image img, uint8 thr) { ///
 /// darken the image if factor<1.0.
 void ImageBrighten(Image img, double factor) {
  assert(img != NULL);
- assert(factor >= 0.0);
+ assert(factor >= 0.0);   //verificar se o factor do brilho é >= 0
+
+ //iterar sobre todos os pixeis da imagem
  for (int y = 0; y < img->height; y++) {
   for (int x = 0; x < img->width; x++) {
-    uint8 pixelValue = ImageGetPixel(img, x, y);
-    uint8 newPixelValue = (uint8)(pixelValue * factor + 0.5);
+    uint8 pixelValue = ImageGetPixel(img, x, y);    //obter o valor do pixel em (x,y)
+
+    //calcular o novo valor do pixel (multiplicandpo o valor obtido de pixelValue pelo fator de brilho - somamos 0.5 para arredondar o valor)
+    uint8 newPixelValue = (uint8)(pixelValue * factor + 0.5);   
     if (newPixelValue > img->maxval) {
+      //se o novo valor do pixel for maior que o maxval da imgOriginal, entao o novo valor do pixel é o seu maxval
       ImageSetPixel(img, x, y, img->maxval);
     } else {
+      //caso contrario, o novo valor do pixel é o newPixelValue
       ImageSetPixel(img, x, y, newPixelValue);
     }
   }
