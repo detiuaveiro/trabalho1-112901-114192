@@ -359,9 +359,9 @@ int ImageValidRect(Image img, int x, int y, int w, int h) { ///
 // This internal function is used in ImageGetPixel / ImageSetPixel. 
 // The returned index must satisfy (0 <= index < img->width*img->height)
 static inline int G(Image img, int x, int y) {
-  int index;
-  assert (0 <= index && index < img->width*img->height);
-  return index;
+ int index = y * img->width + x;
+ assert (0 <= index && index < img->width*img->height);
+ return index;
 }
 
 /// Get the pixel (level) at position (x,y).
@@ -392,11 +392,15 @@ void ImageSetPixel(Image img, int x, int y, uint8 level) { ///
 /// Transform image to negative image.
 /// This transforms dark pixels to light pixels and vice-versa,
 /// resulting in a "photographic negative" effect.
-void ImageNegative(Image img) { ///
-  assert (img != NULL);
-  for (int i = 0; i < img->width * img->height; i++) {
-    img->pixel[i] = img->maxval - img->pixel[i];
-  }
+void ImageNegative(Image img) {
+    assert(img != NULL);
+
+    for (int y = 0; y < img->height; y++) {
+        for (int x = 0; x < img->width; x++) {
+            uint8 currentLevel = ImageGetPixel(img, x, y);
+            ImageSetPixel(img, x, y, img->maxval - currentLevel);     //AQUI POSSO USAR O PixMax em vez do img->maxval 
+        }
+    }
 }
 
 /// Apply threshold to image.
