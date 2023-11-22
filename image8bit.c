@@ -423,17 +423,19 @@ void ImageThreshold(Image img, uint8 thr) { ///
 /// This will brighten the image if factor>1.0 and
 /// darken the image if factor<1.0.
 void ImageBrighten(Image img, double factor) {
-  assert (img != NULL);
-  assert (factor >= 0.0);
-
-  for (int i = 0; i < img->width * img->height; i++) {
-    if (img->pixel[i] * factor > img->maxval) {
-      img->pixel[i] = img->maxval;
-    }
-    else {
-      img->pixel[i] = (uint8)img->pixel[i] * factor + 0.5;
+ assert(img != NULL);
+ assert(factor >= 0.0);
+ for (int y = 0; y < img->height; y++) {
+  for (int x = 0; x < img->width; x++) {
+    uint8 pixelValue = ImageGetPixel(img, x, y);
+    uint8 newPixelValue = (uint8)(pixelValue * factor + 0.5);
+    if (newPixelValue > img->maxval) {
+      ImageSetPixel(img, x, y, img->maxval);
+    } else {
+      ImageSetPixel(img, x, y, newPixelValue);
     }
   }
+ }
 }
 
 
