@@ -407,15 +407,25 @@ void ImageNegative(Image img) {
 /// Transform all pixels with level<thr to black (0) and
 /// all pixels with level>=thr to white (maxval).
 void ImageThreshold(Image img, uint8 thr) { ///
-  assert (img != NULL);
-  for (int i = 0; i < img->width * img->height; i++) {
-    if (img->pixel[i] < thr) {
-      img->pixel[i] = 0;
-    }
-    else {
-      img->pixel[i] = img->maxval;
-    }
-  }
+//Verificar se a imagem existe
+  assert (img != NULL);   
+      //Iterar sobre todas as linhas da imagem
+      for (int y = 0; y < img->height; y++) {
+        //Iterar sobre cada pixel dessa linha
+        for (int x = 0; x < img->width; x++) {
+            //Obter o nivel de cinzento do pixel
+            uint8 currentLevel = ImageGetPixel(img, x, y);
+            //Verificar se o nivel de cinzento do pixel e menor que o threshold
+            if (currentLevel < thr) {
+                //Se for menor que o threshold, o pixel ficará preto
+                ImageSetPixel(img, x, y, 0);
+            }
+            else {
+                //Se for maior ou igual ao threshold, o pixel ficará branco
+                ImageSetPixel(img, x, y, img->maxval);
+            }
+        }
+    } 
 }
 
 /// Brighten image by a factor.
