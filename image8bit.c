@@ -488,10 +488,10 @@ void ImageBrighten(Image img, double fator) {
       //Obter o valor de cinzento do pixel na posição (x, y)
       uint8 pixelValue = ImageGetPixel(img, x, y);
 
-      //Calcular o novo valor do pixel (multiplicandpo o valor obtido de pixelValue pelo fator de brilho - somamos 0.5 para arredondar o valor)
+      //Calcular o novo valor de cinzento do pixel (multiplicandpo o valor obtido de pixelValue pelo fator de brilho - somamos 0.5 para arredondar o valor)
       uint8 newPixelValue = (uint8)(pixelValue * fator + 0.5);   
       if (newPixelValue > ImageMaxval(img)) {
-        //Se o novo valor do pixel for maior que o maxval da imgOriginal, entao o novo valor do pixel é o seu maxval
+        //Se o novo valor de cinzento do pixel for maior que o maxval da imgOriginal, entao o novo valor do pixel é o seu maxval
         ImageSetPixel(img, x, y, ImageMaxval(img));
       } else {
         //Caso contrário, o novo valor do pixel é o newPixelValue
