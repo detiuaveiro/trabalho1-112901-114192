@@ -439,14 +439,14 @@ void ImageBrighten(Image img, double factor) {
   assert(factor >= 0.0);   //verificar se o factor do brilho é >= 0
 
   //Iterar sobre todas as linhas da imagem
-  for (int y = 0; y < img->height; y++) {
+  for (int y = 0; y < ImageHeight(img); y++) {
     //Iterar sobre cada pixel dessa linha
-    for (int x = 0; x < img->width; x++) {
+    for (int x = 0; x < ImageWidth(img); x++) {
       uint8 pixelValue = ImageGetPixel(img, x, y);    //obter o valor do pixel em (x,y)
 
       //calcular o novo valor do pixel (multiplicandpo o valor obtido de pixelValue pelo fator de brilho - somamos 0.5 para arredondar o valor)
       uint8 newPixelValue = (uint8)(pixelValue * factor + 0.5);   
-      if (newPixelValue > img->maxval) {
+      if (newPixelValue > ImageMaxval(img)) {
         //se o novo valor do pixel for maior que o maxval da imgOriginal, entao o novo valor do pixel é o seu maxval
         ImageSetPixel(img, x, y, img->maxval);
       } else {
@@ -480,24 +480,22 @@ void ImageBrighten(Image img, double factor) {
 /// (The caller is responsible for destroying the returned image!)
 /// On failure, returns NULL and errno/errCause are set accordingly.
 Image ImageRotate(Image img) {
-  if (img == NULL) {   //verificar se a imagem existe
-    return NULL;
-  }
+  assert(img != NULL);   //verificar se a imagem existe
 
-  //criar uma nova imagem com as dimensoes da imagem original, mas com a largura e altura trocadas (para rodar a imagem)
+  //criar uma nova imagem com as dimensoes da img, mas com a largura e altura trocadas (para rodar a imagem)
   Image rotatedImage = ImageCreate(img->height, img->width, img->maxval);
   if (rotatedImage == NULL) {  //verificar se a imagem foi criada
     return NULL;
   }
 
   //Iterar sobre todas as linhas da imagem
-  for (int i = 0; i < img->height; ++i) {
+  for (int i = 0; i < ImageHeight(img); ++i) {
     //Iterar sobre cada pixel dessa linha
-    for (int j = 0; j < img->width; ++j) {
+    for (int j = 0; j < ImageWidth(img); ++j) {
       uint8 pixelValue = ImageGetPixel(img, i, j);    //obter o valor do pixel em (x,y)
 
       // Set the pixel value in the rotated image
-      ImageSetPixel(rotatedImage, j, img->height - 1 - i, pixelValue);
+      ImageSetPixel(rotatedImage, j, ImageHeight(img) - 1 - i, pixelValue);
     }
   }
 
@@ -512,21 +510,26 @@ Image ImageRotate(Image img) {
 /// (The caller is responsible for destroying the returned image!)
 /// On failure, returns NULL and errno/errCause are set accordingly.
 Image ImageMirror(Image img) {
-  assert(img != NULL);
+  assert(img != NULL);    //verificar se a imagem existe
 
-  //criar uma nova imagem com as mesmas dimensoes da imagem original
+  //criar uma nova imagem com as mesmas dimensoes da img
   Image mirrorImg = ImageCreate(img->width, img->height, img->maxval);
-  if (mirrorImg == NULL) {
-    return NULL; // falha ao alocar memoria
+  if (mirrorImg == NULL) {    //verificar se a imagem foi criada
+    return NULL;
   }
   
-    for (int i = 0; i < img->height; i++) {
-        for (int j = 0; j < img->width; j++) {
-            mirrorImg->pixel[i * img->width + j] = img->pixel[i * img->width + (img->width - 1 - j)];
-        }
-    }
+  //Iterar sobre todas as linhas da imagem
+  for (int i = 0; i < ImageHeight(img); i++) {
+    //Iterar sobre cada pixel dessa linha
+    for (int j = 0; j < ImageWidth(img); j++) {
+      uint8 pixelValue = ImageGetPixel(img, j, i);    //obter o valor do pixel em (x,y)
 
-    return mirrorImg;
+      // Set the pixel value in the rotated image
+      ImageSetPixel(mirrorImg, ImageWidth(img) - 1 - j, i, pixelValue);
+    }
+  }
+
+  return mirrorImg;
 }
 
 /// Crop a rectangular subimage from img.
