@@ -580,12 +580,12 @@ void ImagePaste(Image img1, int x, int y, Image img2) {
   assert(img2 != NULL);   //verificar se a img2 existe
 
   //verificar se a img2 cabe dentro da img1 na posiçao (x,y)
-  assert(ImageValidRect(img1, x, y, img2->width, img2->height));
+  assert(ImageValidRect(img1, x, y, ImageWidth(img2), ImageHeight(img2)));
 
-  //Iterar sobre todas as linhas da imagem
-  for (int j = 0; j < img2->height; j++) {
+  //Iterar sobre todas as linhas da img2
+  for (int j = 0; j < ImageHeight(img2); j++) {
     //Iterar sobre cada pixel dessa linha
-    for (int i = 0; i < img2->width; i++) {
+    for (int i = 0; i < ImageWidth(img2); i++) {
       uint8 pixelValue = ImageGetPixel(img2, i, j);    //obter o valor do pixel em (i, j) da img2
       ImageSetPixel(img1, x + i, y + j, pixelValue);    //definir o valor do pixel na img1 na posição (x + i, y + j) com o valor obtido da img2
     }
