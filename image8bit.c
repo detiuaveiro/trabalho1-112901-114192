@@ -438,22 +438,25 @@ void ImageThreshold(Image img, uint8 thr) {
 /// This will brighten the image if factor>1.0 and
 /// darken the image if factor<1.0.
 void ImageBrighten(Image img, double fator) {
+  //Verificar se a imagem existe
   assert(img != NULL);
-  assert(fator >= 0.0);   //verificar se o factor do brilho é >= 0
+  //Verificar se o fator é maior ou igual a 0
+  assert(fator >= 0.0);
 
   //Iterar sobre todas as linhas da imagem
   for (int y = 0; y < ImageHeight(img); y++) {
     //Iterar sobre cada pixel dessa linha
     for (int x = 0; x < ImageWidth(img); x++) {
-      uint8 pixelValue = ImageGetPixel(img, x, y);    //obter o valor do pixel em (x,y)
+      //Obter o valor de cinzento do pixel na posição (x, y)
+      uint8 pixelValue = ImageGetPixel(img, x, y);
 
-      //calcular o novo valor do pixel (multiplicandpo o valor obtido de pixelValue pelo fator de brilho - somamos 0.5 para arredondar o valor)
+      //Calcular o novo valor do pixel (multiplicandpo o valor obtido de pixelValue pelo fator de brilho - somamos 0.5 para arredondar o valor)
       uint8 newPixelValue = (uint8)(pixelValue * fator + 0.5);   
       if (newPixelValue > ImageMaxval(img)) {
-        //se o novo valor do pixel for maior que o maxval da imgOriginal, entao o novo valor do pixel é o seu maxval
+        //Se o novo valor do pixel for maior que o maxval da imgOriginal, entao o novo valor do pixel é o seu maxval
         ImageSetPixel(img, x, y, ImageMaxval(img));
       } else {
-        //caso contrario, o novo valor do pixel é o newPixelValue
+        //Caso contrário, o novo valor do pixel é o newPixelValue
         ImageSetPixel(img, x, y, newPixelValue);
       }
     }
@@ -483,11 +486,13 @@ void ImageBrighten(Image img, double fator) {
 /// (The caller is responsible for destroying the returned image!)
 /// On failure, returns NULL and errno/errCause are set accordingly.
 Image ImageRotate(Image img) {
-  assert(img != NULL);   //verificar se a imagem existe
+  //Verificar se a imagem existe
+  assert(img != NULL);
 
-  //criar uma nova imagem com as dimensoes da img, mas com a largura e altura trocadas (para rodar a imagem)
+  //Criar uma nova imagem com as dimensões da img, mas com a largura e altura trocadas (para rodar a imagem)
   Image rotatedImage = ImageCreate(img->height, img->width, img->maxval);
-  if (rotatedImage == NULL) {  //verificar se a imagem foi criada
+  if (rotatedImage == NULL) {
+    //Verificar se a imagem foi criada
     return NULL;
   }
 
@@ -495,12 +500,13 @@ Image ImageRotate(Image img) {
   for (int i = 0; i < ImageHeight(img); ++i) {
     //Iterar sobre cada pixel dessa linha
     for (int j = 0; j < ImageWidth(img); ++j) {
-      uint8 pixelValue = ImageGetPixel(img, i, j);    //obter o valor do pixel em (x,y)
-      //define o valor do pixel na rotatedImage na posição (j, ImageHeight(img) - 1 - i) com o valor obtido da img
+      //Obter o valor de cinzento do pixel na img original na posição (j, i)
+      uint8 pixelValue = ImageGetPixel(img, i, j);
+      //Definir o valor de cinzento do pixel na rotatedImage na posição (j, ImageHeight(img) - 1 - i) com o valor obtido da img
       ImageSetPixel(rotatedImage, j, ImageHeight(img) - 1 - i, pixelValue);
     }
   }
-
+  //Retornar a imagem rodada
   return rotatedImage;
 }
 
@@ -512,11 +518,13 @@ Image ImageRotate(Image img) {
 /// (The caller is responsible for destroying the returned image!)
 /// On failure, returns NULL and errno/errCause are set accordingly.
 Image ImageMirror(Image img) {
-  assert(img != NULL);    //verificar se a imagem existe
+  //Verificar se a imagem existe
+  assert(img != NULL);
 
-  //criar uma nova imagem com as mesmas dimensoes da img
+  //Criar uma nova imagem com as dimensões da img
   Image mirrorImg = ImageCreate(img->width, img->height, img->maxval);
-  if (mirrorImg == NULL) {    //verificar se a imagem foi criada
+  if (mirrorImg == NULL) {
+    //Verificar se a imagem foi criada
     return NULL;
   }
   
@@ -524,12 +532,13 @@ Image ImageMirror(Image img) {
   for (int i = 0; i < ImageHeight(img); i++) {
     //Iterar sobre cada pixel dessa linha
     for (int j = 0; j < ImageWidth(img); j++) {
-      uint8 pixelValue = ImageGetPixel(img, j, i);    //obter o valor do pixel em (x,y)
-      //define o valor do pixel na mirrorImg na posição (ImageWidth(img) - 1 - j, i) com o valor obtido da img original
+      //Obter o valor de cinzento do pixel na img original na posição (j, i)
+      uint8 pixelValue = ImageGetPixel(img, j, i);
+      //Definir o valor de cinzento do pixel na mirrorImg na posição (ImageWidth(img) - 1 - j, i) com o valor obtido da img
       ImageSetPixel(mirrorImg, ImageWidth(img) - 1 - j, i, pixelValue);   
     }
   }
-
+  //Retornar a imagem espelhada
   return mirrorImg;
 }
 
@@ -546,25 +555,29 @@ Image ImageMirror(Image img) {
 /// (The caller is responsible for destroying the returned image!)
 /// On failure, returns NULL and errno/errCause are set accordingly.
 Image ImageCrop(Image img, int x, int y, int w, int h) {
-  assert(img != NULL);    //verificar se a imagem existe
-  assert(ImageValidRect(img, x, y, w, h));    //verificar se o retangulo esta dentro da imagem
+  //Verificar se a imagem existe
+  assert(img != NULL);
+  //Verificar se o retângulo esta dentro da imagem
+  assert(ImageValidRect(img, x, y, w, h));
 
-  //criar uma nova imagem com as dimensoes do retangulo
+  //Criar uma nova imagem com as dimensões do retângulo
   Image cropImg = ImageCreate(w, h, ImageMaxval(img));
   if (cropImg == NULL) {
-    return NULL; //verificar se a imagem foi criada
+    //Verificar se a imagem foi criada
+    return NULL;
   }
 
   //Iterar sobre todas as linhas da cropImg
   for (int i = 0; i < h; i++) {
     //Iterar sobre cada pixel dessa cropImg
     for (int j = 0; j < w; j++) {
-      uint8 pixelValue = ImageGetPixel(img, x + j, y + i);    //obtem o valor do pixel na posição (x + j, y + i) da img original
-      //define o valor do pixel na imagem recortada na posição (j, i) com o valor obtido da img original
+      //Obter o valor de cinzento do pixel na img original na posição (x + j, y + i)
+      uint8 pixelValue = ImageGetPixel(img, x + j, y + i);
+      //Definir o valor de cinzento do pixel na imagem recortada na posição (j, i) com o valor obtido da img original
       ImageSetPixel(cropImg, j, i, pixelValue);    
     }
   }
-
+  //Retornar a imagem recortada
   return cropImg;
 }
 
@@ -679,15 +692,18 @@ int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) {
         for (int l = 0; l < ImageWidth(img2); l++) {
           //Verificar se o pixel na posição (j + l, i + k) da img1 é diferente do pixel na posição (l, k) da img2
           if (ImageGetPixel(img1, j + l, i + k) != ImageGetPixel(img2, l, k)) {
-            match = 0;  //se os pixeis forem diferentes, entao nao encontramos a img2 dentro da img1
+            //Se forem diferentes, entao nao encontramos a img2 dentro da img1
+            match = 0;
             break;
           }
         }
-        if (!match) {  //se os pixeis forem diferentes, entao nao encontramos a img2 dentro da img1
+        //Se forem diferentes, entao nao encontramos a img2 dentro da img1
+        if (!match) {
           break;
         }
       }
-      if (match) {  //se os pixeis forem iguais, entao encontramos a img2 dentro da img1
+      //Se forem iguais, entao encontramos a img2 dentro da img1
+      if (match) {
         *px = j;
         *py = i;
         return 1;
