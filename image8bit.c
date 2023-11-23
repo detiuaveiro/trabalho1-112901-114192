@@ -733,17 +733,20 @@ void ImageBlur(Image img, int dx, int dy) {
   }
 
   //Iterar sobre todas as linhas da imagem
-  for (int i = 0; i < ImageHeight(img); i++) {
+  for (int i = 0; i < img->height; i++) {
     //Iterar sobre cada pixel dessa linha
-    for (int j = 0; j < ImageWidth(img); j++) {
+    for (int j = 0; j < img->width; j++) {
+
       //Variável para guardar a soma dos pixeis
       int sum = 0;
       //Variável para guardar o número de pixeis
       int count = 0;
+
       //Iterar sobre os pixeis dentro do retangulo [y-dy, y+dy]
       for (int k = i - dy; k <= i + dy; k++) {
         //Iterar sobre os pixeis dentro do retangulo [x-dx, x+dx]
         for (int l = j - dx; l <= j + dx; l++) {
+
           //Verificar se o pixel na posição (l, k) existe
           if (ImageValidPos(img, l, k)) {
             //Se existir, somar o valor do pixel na posição (l, k) à variável sum e incrementar a variável count
@@ -751,24 +754,26 @@ void ImageBlur(Image img, int dx, int dy) {
             count++;
           }
         }
-      }
+      }   
+
       //Calcular a média do valor dos pixeis dentro do retangulo
-      uint8 pixelValue = (uint8)(sum / count + 0.5);
+      uint8 pixelValue = (uint8)((sum + count * 0.5 )/ count);
       //Definir o valor do pixel na imagem blurImg na posição (j, i) com o valor obtido
       ImageSetPixel(blurImg, j, i, pixelValue);
     }
   }
 
-  //Copiar a imagem blurImg para a imagem img
+  //Copiar a imagem blurImg para a imagem img:
   //Iterar sobre todas as linhas da imagem
-  for (int i = 0; i < ImageHeight(img); i++) {
+  for (int i = 0; i < img->height; i++) {
     //Iterar sobre cada pixel dessa linha
-    for (int j = 0; j < ImageWidth(img); j++) {
+    for (int j = 0; j < img->width; j++) {
+
       //Definir o valor do pixel na imagem img na posição (j, i) com o valor obtido da imagem blurImg
       ImageSetPixel(img, j, i, ImageGetPixel(blurImg, j, i));
     }
   }
 
-  //Apagar a imagem blurImg para libertar a memoria alocada
+  //apagar a imagem blurImg para libertar a memoria alocada
   ImageDestroy(&blurImg);
 }
