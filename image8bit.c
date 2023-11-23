@@ -635,20 +635,24 @@ void ImageBlend(Image img1, int x, int y, Image img2, double alpha) {
 /// Returns 1 (true) if img2 matches subimage of img1 at pos (x, y).
 /// Returns 0, otherwise.
 int ImageMatchSubImage(Image img1, int x, int y, Image img2) {
-  assert (img1 != NULL);  //verificar se a img1 existe
-  assert (img2 != NULL);  //verificar se a img2 existe
-  assert (ImageValidPos(img1, x, y)); //verificar se a posicao (x,y) esta dentro da img1
+  //Verificar se a img1 e a img2 existem
+  assert (img1 != NULL);
+  assert (img2 != NULL);  
+  //Verificar se a img2 cabe dentro da img1 na posiçao (x,y)
+  assert (ImageValidPos(img1, x, y));
 
   //Iterar sobre todas as linhas da img2
   for (int i = 0; i < img2->height; i++) {
     //Iterar sobre cada pixel dessa linha
     for (int j = 0; j < img2->width; j++) {
-      //verificar se o pixel na posição (x + j, y + i) da img1 é diferente do pixel na posição (j, i) da img2
+      //Verificar se o pixel na posição (x + j, y + i) da img1 é diferente do pixel na posição (j, i) da img2
       if (ImageGetPixel(img1, x + j, y + i) != ImageGetPixel(img2, j, i)) {
+        //Se forem diferentes, entao nao encontramos a img2 dentro da img1
         return 0;
       }
     }
   }
+  //Se forem iguais, entao encontramos a img2 dentro da img1
   return 1;
 }
 
@@ -657,21 +661,23 @@ int ImageMatchSubImage(Image img1, int x, int y, Image img2) {
 /// If a match is found, returns 1 and matching position is set in vars (*px, *py).
 /// If no match is found, returns 0 and (*px, *py) are left untouched.
 int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) {
-  assert(img1 != NULL);  //verificar se a img1 existe
-  assert(img2 != NULL);  //verificar se a img2 existe
+  //Verificar se a img1 e a img2 existem
+  assert(img1 != NULL);
+  assert(img2 != NULL);
 
   //Iterar sobre todas as linhas da img1
   for (int i = 0; i < ImageHeight(img1) - ImageHeight(img2); i++) {
     //Iterar sobre cada pixel dessa linha
     for (int j = 0; j < ImageWidth(img1) - ImageWidth(img2); j++) {
 
-      int match = 1;  //variavel para verificar se os pixeis sao iguais (para localizamos a img2 dentro da img1)
+      //Variável para guardar se os pixeis sao iguais ou diferentes
+      int match = 1;
       
       //Iterar sobre todas as linhas da img2
       for (int k = 0; k < ImageHeight(img2); k++) {
         //Iterar sobre cada pixel dessa linha
         for (int l = 0; l < ImageWidth(img2); l++) {
-          //verificar se o pixel na posição (j + l, i + k) da img1 é diferente do pixel na posição (l, k) da img2
+          //Verificar se o pixel na posição (j + l, i + k) da img1 é diferente do pixel na posição (l, k) da img2
           if (ImageGetPixel(img1, j + l, i + k) != ImageGetPixel(img2, l, k)) {
             match = 0;  //se os pixeis forem diferentes, entao nao encontramos a img2 dentro da img1
             break;
@@ -703,7 +709,7 @@ void ImageBlur(Image img, int dx, int dy) {
   assert(img != NULL);
 
   //Criar uma nova imagem temporaria
-  Image blurImg = ImageCreate(ImageWidth(img), ImageHeight(img), ImgMaxval(img));
+  Image blurImg = ImageCreate(ImageWidth(img), ImageHeight(img), ImageMaxval(img));
 
   //Verificar se a imagem temporaria foi criada
   if (blurImg == NULL) {
