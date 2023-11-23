@@ -169,29 +169,36 @@ void ImageInit(void) { ///
 /// (The caller is responsible for destroying the returned image!)
 /// On failure, returns NULL and errno/errCause are set accordingly.
 Image ImageCreate(int width, int height, uint8 maxval) {
-  assert(width >= 0);   //verificar se a largura da imagem é >= 0
-  assert(height >= 0);  //verificar se a altura da imagem é >= 0
-  assert(0 < maxval && maxval <= PixMax);   //verificar o valor do maxval
+  //Verificar se a largura e a altura da imagem sao positivas
+  assert(width >= 0);
+  assert(height >= 0);
+  //Verificar se o maxval da imagem é maior que 0 e menor ou igual ao PixMax
+  assert(0 < maxval && maxval <= PixMax);
 
-  Image img = (Image)malloc(sizeof(struct image));  //Alocar memoria para a imagem
+  //Alocar memória para a imagem
+  Image img = (Image)malloc(sizeof(struct image));
+  //Verificar se a alocação de memória para a imagem foi bem sucedida
   if (img == NULL) {
+    //Se não foi bem sucedida imprimir a mensagem de erro
     errCause = "Memory allocation failed";
     return NULL;
   }
 
-  //definir os valores dos campos da imagem
+  //Definir os valores da imagem
   img->width = width;
   img->height = height;
   img->maxval = maxval;
 
   //Alocar memoria para o array de pixeis da imagem (dados dos pixeis)
   img->pixel = (uint8*)malloc(width * height * sizeof(uint8));
+  //Verificar se a alocação de memória para o array de pixeis foi bem sucedida
   if (img->pixel == NULL) {
+    //Se não foi bem sucedida imprimir a mensagem de erro
     errCause = "Memory allocation failed";
     free(img);
     return NULL;
   }
-
+  //Se as duas alocações de memória foram bem sucedidas, então retornar a imagem
   return img;
 }
 
@@ -201,12 +208,18 @@ Image ImageCreate(int width, int height, uint8 maxval) {
 /// Ensures: (*imgp)==NULL.
 /// Should never fail, and should preserve global errno/errCause.
 void ImageDestroy(Image* imgp) {
-  assert(imgp != NULL);  //verificar se a imagem existe
-  if (*imgp != NULL) {  
-    free((*imgp)->pixel);
-    free(*imgp);
-    *imgp = NULL;
+  //Verificar se o ponteiro para a imagem existe
+  if (*imgp == NULL) {
+    //Se não existir, não faz nada
+    return;
   }
+
+  //Libertar a memoria alocada para o array de pixeis da imagem
+  free((*imgp)->pixel);
+  //Libertar a memoria alocada para a imagem
+  free(*imgp);
+  //Definir o valor do ponteiro para a imagem como NULL
+  *imgp = NULL;
 }
 
 
@@ -317,17 +330,32 @@ int ImageMaxval(Image img) { ///
 /// *min is set to the minimum gray level in the image,
 /// *max is set to the maximum.
 void ImageStats(Image img, uint8* min, uint8* max) { ///
+  //Verificar se a imagem existe
   assert (img != NULL);
+  //Verificar se os ponteiros min e max existem
   assert (min != NULL);
   assert (max != NULL);
+
+  //Definir o valor inicial dos ponteiros min e max
   *min = PixMax;
   *max = 0;
-  for (int i = 0; i < img->width * img->height; i++) {
-    if (img->pixel[i] < *min) {
-      *min = img->pixel[i];
-    }
-    if (img->pixel[i] > *max) {
-      *max = img->pixel[i];
+
+  //Iterar sobre todas as linhas da imagem
+  for (int i = 0; i < ImageHeight(img); i++) {
+    //Iterar sobre cada pixel dessa linha
+    for (int j = 0; j < ImageWidth(img); j++) {
+      //Obter o valor de cinzento do pixel na posição (j, i)
+      uint8 pixelValue = ImageGetPixel(img, j, i);
+      //Verificar se o valor de cinzento do pixel é menor que o valor atual do min
+      if (pixelValue < *min) {
+        //Se for menor, o novo valor do min é o valor de cinzento do pixel
+        *min = pixelValue;
+      }
+      //Verificar se o valor de cinzento do pixel é maior que o valor atual do max
+      if (pixelValue > *max) {
+        //Se for maior, o novo valor do max é o valor de cinzento do pixel
+        *max = pixelValue;
+      }
     }
   }
 }
@@ -340,14 +368,19 @@ int ImageValidPos(Image img, int x, int y) { ///
 
 /// Check if rectangular area (x,y,w,h) is completely inside img.
 int ImageValidRect(Image img, int x, int y, int w, int h) { ///
+  //Verificar se a imagem existe
   assert (img != NULL);
+  //Verificar se o retângulo esta dentro da imagem
   for (int i = x; i < x + w; i++) {
     for (int j = y; j < y + h; j++) {
+      //Verificar se o pixel na posição (i, j) existe
       if (!ImageValidPos(img, i, j)) {
+        //Se nao existir, entao o retângulo nao esta dentro da imagem
         return 0;
       }
     }
   }
+  //Se existir, entao o retângulo esta dentro da imagem
   return 1;
 }
 
@@ -362,8 +395,10 @@ int ImageValidRect(Image img, int x, int y, int w, int h) { ///
 // This internal function is used in ImageGetPixel / ImageSetPixel. 
 // The returned index must satisfy (0 <= index < img->width*img->height)
 static inline int G(Image img, int x, int y) {
- int index = y * img->width + x;    //calcular o indice do pixel nas coordenadas (x,y)
- assert (0 <= index && index < img->width*img->height);   //verificar se o indice do pixel esta dentro da img
+ //Calcular o índice do pixel nas coordenadas (x,y)
+ int index = y * img->width + x;
+ //Verificar se o índice do pixel esta dentro da img
+ assert (0 <= index && index < img->width*img->height);
  return index;
 }
 
@@ -396,14 +431,17 @@ void ImageSetPixel(Image img, int x, int y, uint8 level) { ///
 /// This transforms dark pixels to light pixels and vice-versa,
 /// resulting in a "photographic negative" effect.
 void ImageNegative(Image img) {
-  assert(img != NULL);  //verificar se a imagem existe
+  //Verificar se a imagem existe
+  assert(img != NULL);
 
   //Iterar sobre todas as linhas da imagem
   for (int y = 0; y < ImageHeight(img); y++) {
     //Iterar sobre cada pixel dessa linha
     for (int x = 0; x < ImageWidth(img); x++) {
-      uint8 currentLevel = ImageGetPixel(img, x, y);  //obter o valor do pixel em (x,y)
-      ImageSetPixel(img, x, y, ImageMaxval(img) - currentLevel);     //AQUI POSSO USAR O PixMax em vez do img->maxval (acho eu! - tenho de ver se da diferente)
+      //Obter o valor de cinzento do pixel na posição (x, y)
+      uint8 currentLevel = ImageGetPixel(img, x, y);
+      //Definir o valor de cinzento do pixel na posição (x, y) com o valor obtido subtraido ao maxval da imagem
+      ImageSetPixel(img, x, y, ImageMaxval(img) - currentLevel);
     }
   }
 }
@@ -774,6 +812,6 @@ void ImageBlur(Image img, int dx, int dy) {
     }
   }
 
-  //apagar a imagem blurImg para libertar a memoria alocada
+  //Apagar a imagem blurImg para libertar a memoria alocada
   ImageDestroy(&blurImg);
 }
