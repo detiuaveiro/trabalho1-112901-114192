@@ -496,8 +496,7 @@ Image ImageRotate(Image img) {
     //Iterar sobre cada pixel dessa linha
     for (int j = 0; j < ImageWidth(img); ++j) {
       uint8 pixelValue = ImageGetPixel(img, i, j);    //obter o valor do pixel em (x,y)
-
-      // Set the pixel value in the rotated image
+      //define o valor do pixel na rotatedImage na posição (j, ImageHeight(img) - 1 - i) com o valor obtido da img
       ImageSetPixel(rotatedImage, j, ImageHeight(img) - 1 - i, pixelValue);
     }
   }
@@ -526,9 +525,8 @@ Image ImageMirror(Image img) {
     //Iterar sobre cada pixel dessa linha
     for (int j = 0; j < ImageWidth(img); j++) {
       uint8 pixelValue = ImageGetPixel(img, j, i);    //obter o valor do pixel em (x,y)
-
-      // Set the pixel value in the rotated image
-      ImageSetPixel(mirrorImg, ImageWidth(img) - 1 - j, i, pixelValue);
+      //define o valor do pixel na mirrorImg na posição (ImageWidth(img) - 1 - j, i) com o valor obtido da img original
+      ImageSetPixel(mirrorImg, ImageWidth(img) - 1 - j, i, pixelValue);   
     }
   }
 
@@ -548,22 +546,26 @@ Image ImageMirror(Image img) {
 /// (The caller is responsible for destroying the returned image!)
 /// On failure, returns NULL and errno/errCause are set accordingly.
 Image ImageCrop(Image img, int x, int y, int w, int h) {
-  assert(img != NULL);
-  assert(ImageValidRect(img, x, y, w, h));
+  assert(img != NULL);    //verificar se a imagem existe
+  assert(ImageValidRect(img, x, y, w, h));    //verificar se o retangulo esta dentro da imagem
 
   //criar uma nova imagem com as dimensoes do retangulo
-  Image cropImg = ImageCreate(w, h, img->maxval);
+  Image cropImg = ImageCreate(w, h, ImageMaxval(img));
   if (cropImg == NULL) {
-    return NULL; // falha ao alocar memoria
+    return NULL; //verificar se a imagem foi criada
   }
 
-    for (int i = 0; i < h; i++) {
-        for (int j = 0; j < w; j++) {
-            cropImg->pixel[i * w + j] = img->pixel[(y + i) * img->width + (x + j)];
-        }
+  //Iterar sobre todas as linhas da cropImg
+  for (int i = 0; i < h; i++) {
+    //Iterar sobre cada pixel dessa cropImg
+    for (int j = 0; j < w; j++) {
+      uint8 pixelValue = ImageGetPixel(img, x + j, y + i);    //obtem o valor do pixel na posição (x + j, y + i) da img original
+      //define o valor do pixel na imagem recortada na posição (j, i) com o valor obtido da img original
+      ImageSetPixel(cropImg, j, i, pixelValue);    
     }
+  }
 
-    return cropImg;
+  return cropImg;
 }
 
 
