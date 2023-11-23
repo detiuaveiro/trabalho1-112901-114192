@@ -576,18 +576,21 @@ Image ImageCrop(Image img, int x, int y, int w, int h) {
 /// This modifies img1 in-place: no allocation involved.
 /// Requires: img2 must fit inside img1 at position (x, y).
 void ImagePaste(Image img1, int x, int y, Image img2) {
-  assert(img1 != NULL);   //verificar se a img1 existe
-  assert(img2 != NULL);   //verificar se a img2 existe
+  //Verificar se a img1 e a img2 existem
+  assert(img1 != NULL);
+  assert(img2 != NULL);
 
-  //verificar se a img2 cabe dentro da img1 na posiçao (x,y)
+  //Verificar se a img2 cabe dentro da img1 na posiçao (x,y)
   assert(ImageValidRect(img1, x, y, ImageWidth(img2), ImageHeight(img2)));
 
   //Iterar sobre todas as linhas da img2
   for (int j = 0; j < ImageHeight(img2); j++) {
     //Iterar sobre cada pixel dessa linha
     for (int i = 0; i < ImageWidth(img2); i++) {
-      uint8 pixelValue = ImageGetPixel(img2, i, j);    //obter o valor do pixel em (i, j) da img2
-      ImageSetPixel(img1, x + i, y + j, pixelValue);    //definir o valor do pixel na img1 na posição (x + i, y + j) com o valor obtido da img2
+      //Obter o valor de cinzento do pixel na img2 na posição (i, j)
+      uint8 pixelValue = ImageGetPixel(img2, i, j);
+      //Definir o valor de cinzento do pixel na img1 na posição (x + i, y + j) com o valor obtido
+      ImageSetPixel(img1, x + i, y + j, pixelValue);
     }
   }
 }
@@ -599,16 +602,32 @@ void ImagePaste(Image img1, int x, int y, Image img2) {
 /// alpha usually is in [0.0, 1.0], but values outside that interval
 /// may provide interesting effects.  Over/underflows should saturate.
 void ImageBlend(Image img1, int x, int y, Image img2, double alpha) {
+    //Verificar se a img1 e a img2 existem
     assert(img1 != NULL);
     assert(img2 != NULL);
-    assert(ImageValidRect(img1, x, y, img2->width, img2->height));
+    //Verificar se a img2 cabe dentro da img1 na posiçao (x,y)
+    assert(ImageValidRect(img1, x, y, ImageWidth(img2), ImageHeight(img2)));
 
-    for (int j = 0; j < img2->height; j++) {
-        for (int i = 0; i < img2->width; i++) {
-          //podemos usar getpixel e setpixel
-            img1->pixel[(y + j) * img1->width + (x + i)] = (uint8)((img1->pixel[(y + j) * img1->width + (x + i)] * (1 - alpha) + img2->pixel[j * img2->width + i] * alpha) + 0.5);
+    //Iterar sobre todas as linhas da img2
+    for (int j = 0; j < ImageHeight(img2); j++) {
+        //Iterar sobre cada pixel dessa linha
+        for (int i = 0; i < ImageWidth(img2); i++) {
+            //Obter o valor de cinzento do pixel na img1 na posição (x + i, y + j)
+            uint8 pixelValue1 = ImageGetPixel(img1, x + i, y + j);
+            //Obter o valor de cinzento do pixel na img2 na posição (i, j)
+            uint8 pixelValue2 = ImageGetPixel(img2, i, j);
+            //Calcular o novo valor de cinzento do pixel na img1 na posição (x + i, y + j)
+            uint8 newPixelValue = (uint8)(pixelValue1 * (1 - alpha) + pixelValue2 * alpha + 0.5);
+            //Verificar se o novo valor de cinzento do pixel na img1 na posição (x + i, y + j) é maior que o maxval da img1
+            if (newPixelValue > ImageMaxval(img1)) {
+                //Se for maior, o novo valor de cinzento do pixel na img1 na posição (x + i, y + j) é o maxval da img1
+                ImageSetPixel(img1, x + i, y + j, ImageMaxval(img1));
+            } else {
+                //Se for menor, o novo valor de cinzento do pixel na img1 na posição (x + i, y + j) é o newPixelValue
+                ImageSetPixel(img1, x + i, y + j, newPixelValue);
+            }
         }
-    } 
+    }
 }
 
 
@@ -660,40 +679,54 @@ int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) { ///
 /// [x-dx, x+dx]x[y-dy, y+dy].
 /// The image is changed in-place.
 void ImageBlur(Image img, int dx, int dy) {
+  //Verificar se a imagem existe
   assert(img != NULL);
 
-  Image blurImg = ImageCreate(img->width, img->height, img->maxval);
+  //Criar uma nova imagem temporaria
+  Image blurImg = ImageCreate(ImageWidth(img), ImageHeight(img), ImgMaxval(img));
+
+  //Verificar se a imagem temporaria foi criada
   if (blurImg == NULL) {
     return;
   }
 
-  //percorrer os pixeis da imagem img
-  for (int i = 0; i < img->height; i++) {
-    for (int j = 0; j < img->width; j++) {
+  //Iterar sobre todas as linhas da imagem
+  for (int i = 0; i < ImageHeight(img); i++) {
+    //Iterar sobre cada pixel dessa linha
+    for (int j = 0; j < ImageWidth(img); j++) {
+      //Variável para guardar a soma dos pixeis
       int sum = 0;
+      //Variável para guardar o número de pixeis
       int count = 0;
-      //percorrer os pixeis dentro do retangulo (dx,dy)
+      //Iterar sobre os pixeis dentro do retangulo [y-dy, y+dy]
       for (int k = i - dy; k <= i + dy; k++) {
+        //Iterar sobre os pixeis dentro do retangulo [x-dx, x+dx]
         for (int l = j - dx; l <= j + dx; l++) {
-          if (ImageValidPos(img, l, k)) { //verificar se a posicao de cada pixel esta dentro da imagem (validar a posiçao)
-            //para acumular a soma dos valores dos pixeis
-            sum += img->pixel[k * img->width + l];
+          //Verificar se o pixel na posição (l, k) existe
+          if (ImageValidPos(img, l, k)) {
+            //Se existir, somar o valor do pixel na posição (l, k) à variável sum e incrementar a variável count
+            sum += ImageGetPixel(img, l, k);
             count++;
           }
         }
-      }   
-      //Calcular a media dos valores dos pixeis dentro do retangulo (dx,dy)
-      blurImg->pixel[i * img->width + j] = (uint8)((sum + count * 0.5 )/ count);
+      }
+      //Calcular a média do valor dos pixeis dentro do retangulo
+      uint8 pixelValue = (uint8)(sum / count + 0.5);
+      //Definir o valor do pixel na imagem blurImg na posição (j, i) com o valor obtido
+      ImageSetPixel(blurImg, j, i, pixelValue);
     }
   }
 
-  //copiar os pixeis da imagem blurImg para a imagem img
-  for (int i = 0; i < img->height; i++) {
-    for (int j = 0; j < img->width; j++) {
-      img->pixel[i * img->width + j] = blurImg->pixel[i * img->width + j];
+  //Copiar a imagem blurImg para a imagem img
+  //Iterar sobre todas as linhas da imagem
+  for (int i = 0; i < ImageHeight(img); i++) {
+    //Iterar sobre cada pixel dessa linha
+    for (int j = 0; j < ImageWidth(img); j++) {
+      //Definir o valor do pixel na imagem img na posição (j, i) com o valor obtido da imagem blurImg
+      ImageSetPixel(img, j, i, ImageGetPixel(blurImg, j, i));
     }
   }
 
-  //apagar a imagem blurImg para libertar a memoria alocada
+  //Apagar a imagem blurImg para libertar a memoria alocada
   ImageDestroy(&blurImg);
 }
