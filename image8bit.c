@@ -359,8 +359,8 @@ int ImageValidRect(Image img, int x, int y, int w, int h) { ///
 // This internal function is used in ImageGetPixel / ImageSetPixel. 
 // The returned index must satisfy (0 <= index < img->width*img->height)
 static inline int G(Image img, int x, int y) {
- int index = y * img->width + x;
- assert (0 <= index && index < img->width*img->height);
+ int index = y * img->width + x;    //calcular o indice do pixel nas coordenadas (x,y)
+ assert (0 <= index && index < img->width*img->height);   //verificar se o indice do pixel esta dentro da img
  return index;
 }
 
@@ -393,39 +393,41 @@ void ImageSetPixel(Image img, int x, int y, uint8 level) { ///
 /// This transforms dark pixels to light pixels and vice-versa,
 /// resulting in a "photographic negative" effect.
 void ImageNegative(Image img) {
-    assert(img != NULL);
+  assert(img != NULL);  //verificar se a imagem existe
 
-    for (int y = 0; y < img->height; y++) {
-        for (int x = 0; x < img->width; x++) {
-            uint8 currentLevel = ImageGetPixel(img, x, y);
-            ImageSetPixel(img, x, y, img->maxval - currentLevel);     //AQUI POSSO USAR O PixMax em vez do img->maxval 
-        }
+  //Iterar sobre todas as linhas da imagem
+  for (int y = 0; y < img->height; y++) {
+    //Iterar sobre cada pixel dessa linha
+    for (int x = 0; x < img->width; x++) {
+      uint8 currentLevel = ImageGetPixel(img, x, y);  //obter o valor do pixel em (x,y)
+      ImageSetPixel(img, x, y, img->maxval - currentLevel);     //AQUI POSSO USAR O PixMax em vez do img->maxval (acho eu! - tenho de ver se da diferente)
     }
+  }
 }
 
 /// Apply threshold to image.
 /// Transform all pixels with level<thr to black (0) and
 /// all pixels with level>=thr to white (maxval).
 void ImageThreshold(Image img, uint8 thr) { ///
-//Verificar se a imagem existe
+  //Verificar se a imagem existe
   assert (img != NULL);   
-      //Iterar sobre todas as linhas da imagem
-      for (int y = 0; y < img->height; y++) {
-        //Iterar sobre cada pixel dessa linha
-        for (int x = 0; x < img->width; x++) {
-            //Obter o nivel de cinzento do pixel
-            uint8 currentLevel = ImageGetPixel(img, x, y);
-            //Verificar se o nivel de cinzento do pixel e menor que o threshold
-            if (currentLevel < thr) {
-                //Se for menor que o threshold, o pixel ficará preto
-                ImageSetPixel(img, x, y, 0);
-            }
-            else {
-                //Se for maior ou igual ao threshold, o pixel ficará branco
-                ImageSetPixel(img, x, y, img->maxval);
-            }
-        }
-    } 
+  //Iterar sobre todas as linhas da imagem
+  for (int y = 0; y < img->height; y++) {
+    //Iterar sobre cada pixel dessa linha
+    for (int x = 0; x < img->width; x++) {
+      //Obter o nivel de cinzento do pixel
+      uint8 currentLevel = ImageGetPixel(img, x, y);//obter o valor do pixel em (x,y)
+
+      //Verificar se o nivel de cinzento do pixel e menor que o threshold
+      if (currentLevel < thr) {
+        //Se for menor que o threshold, o pixel ficará preto
+          ImageSetPixel(img, x, y, 0);
+      } else {
+        //Se for maior ou igual ao threshold, o pixel ficará branco
+          ImageSetPixel(img, x, y, img->maxval);
+      }
+    }
+  } 
 }
 
 /// Brighten image by a factor.
@@ -433,25 +435,26 @@ void ImageThreshold(Image img, uint8 thr) { ///
 /// This will brighten the image if factor>1.0 and
 /// darken the image if factor<1.0.
 void ImageBrighten(Image img, double factor) {
- assert(img != NULL);
- assert(factor >= 0.0);   //verificar se o factor do brilho é >= 0
+  assert(img != NULL);
+  assert(factor >= 0.0);   //verificar se o factor do brilho é >= 0
 
- //iterar sobre todos os pixeis da imagem
- for (int y = 0; y < img->height; y++) {
-  for (int x = 0; x < img->width; x++) {
-    uint8 pixelValue = ImageGetPixel(img, x, y);    //obter o valor do pixel em (x,y)
+  //Iterar sobre todas as linhas da imagem
+  for (int y = 0; y < img->height; y++) {
+    //Iterar sobre cada pixel dessa linha
+    for (int x = 0; x < img->width; x++) {
+      uint8 pixelValue = ImageGetPixel(img, x, y);    //obter o valor do pixel em (x,y)
 
-    //calcular o novo valor do pixel (multiplicandpo o valor obtido de pixelValue pelo fator de brilho - somamos 0.5 para arredondar o valor)
-    uint8 newPixelValue = (uint8)(pixelValue * factor + 0.5);   
-    if (newPixelValue > img->maxval) {
-      //se o novo valor do pixel for maior que o maxval da imgOriginal, entao o novo valor do pixel é o seu maxval
-      ImageSetPixel(img, x, y, img->maxval);
-    } else {
-      //caso contrario, o novo valor do pixel é o newPixelValue
-      ImageSetPixel(img, x, y, newPixelValue);
+      //calcular o novo valor do pixel (multiplicandpo o valor obtido de pixelValue pelo fator de brilho - somamos 0.5 para arredondar o valor)
+      uint8 newPixelValue = (uint8)(pixelValue * factor + 0.5);   
+      if (newPixelValue > img->maxval) {
+        //se o novo valor do pixel for maior que o maxval da imgOriginal, entao o novo valor do pixel é o seu maxval
+        ImageSetPixel(img, x, y, img->maxval);
+      } else {
+        //caso contrario, o novo valor do pixel é o newPixelValue
+        ImageSetPixel(img, x, y, newPixelValue);
+      }
     }
   }
- }
 }
 
 
@@ -477,23 +480,28 @@ void ImageBrighten(Image img, double factor) {
 /// (The caller is responsible for destroying the returned image!)
 /// On failure, returns NULL and errno/errCause are set accordingly.
 Image ImageRotate(Image img) {
-    if (img == NULL) {
-        return NULL;
-    }
+  if (img == NULL) {   //verificar se a imagem existe
+    return NULL;
+  }
 
-    Image rotatedImage = ImageCreate(img->height, img->width, img->maxval);
-    if (rotatedImage == NULL) {
-        return NULL;
-    }
+  //criar uma nova imagem com as dimensoes da imagem original, mas com a largura e altura trocadas (para rodar a imagem)
+  Image rotatedImage = ImageCreate(img->height, img->width, img->maxval);
+  if (rotatedImage == NULL) {  //verificar se a imagem foi criada
+    return NULL;
+  }
 
-    //percorrer os pixeis da img
-    for (int i = 0; i < img->height; ++i) {
-        for (int j = 0; j < img->width; ++j) {
-          rotatedImage->pixel[(rotatedImage->height - 1 - j) * rotatedImage->width + i] = img->pixel[i * img->width + j];
-        }
-    }
+  //Iterar sobre todas as linhas da imagem
+  for (int i = 0; i < img->height; ++i) {
+    //Iterar sobre cada pixel dessa linha
+    for (int j = 0; j < img->width; ++j) {
+      uint8 pixelValue = ImageGetPixel(img, i, j);    //obter o valor do pixel em (x,y)
 
-    return rotatedImage;
+      // Set the pixel value in the rotated image
+      ImageSetPixel(rotatedImage, j, img->height - 1 - i, pixelValue);
+    }
+  }
+
+  return rotatedImage;
 }
 
 /// Mirror an image = flip left-right.
