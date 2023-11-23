@@ -169,19 +169,22 @@ void ImageInit(void) { ///
 /// (The caller is responsible for destroying the returned image!)
 /// On failure, returns NULL and errno/errCause are set accordingly.
 Image ImageCreate(int width, int height, uint8 maxval) {
-  assert(width >= 0);
-  assert(height >= 0);
-  assert(0 < maxval && maxval <= PixMax);
+  assert(width >= 0);   //verificar se a largura da imagem é >= 0
+  assert(height >= 0);  //verificar se a altura da imagem é >= 0
+  assert(0 < maxval && maxval <= PixMax);   //verificar o valor do maxval
 
-  Image img = (Image)malloc(sizeof(struct image));
+  Image img = (Image)malloc(sizeof(struct image));  //Alocar memoria para a imagem
   if (img == NULL) {
     errCause = "Memory allocation failed";
     return NULL;
   }
 
+  //definir os valores dos campos da imagem
   img->width = width;
   img->height = height;
   img->maxval = maxval;
+
+  //Alocar memoria para o array de pixeis da imagem (dados dos pixeis)
   img->pixel = (uint8*)malloc(width * height * sizeof(uint8));
   if (img->pixel == NULL) {
     errCause = "Memory allocation failed";
@@ -193,13 +196,13 @@ Image ImageCreate(int width, int height, uint8 maxval) {
 }
 
 /// Destroy the image pointed to by (*imgp).
-///   imgp : address of an Image variable.
+/// imgp : address of an Image variable.
 /// If (*imgp)==NULL, no operation is performed.
 /// Ensures: (*imgp)==NULL.
 /// Should never fail, and should preserve global errno/errCause.
 void ImageDestroy(Image* imgp) {
-  assert(imgp != NULL);
-  if (*imgp != NULL) {
+  assert(imgp != NULL);  //verificar se a imagem existe
+  if (*imgp != NULL) {  
     free((*imgp)->pixel);
     free(*imgp);
     *imgp = NULL;
