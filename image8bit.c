@@ -147,13 +147,12 @@ static int check(int condition, const char* failmsg) {
 void ImageInit(void) { ///
   InstrCalibrate();
   InstrName[0] = "pixmem";  // InstrCount[0] will count pixel array acesses
-  // Name other counters here...
-  
+  InstrName[1] = "count";   // InstrCount[1] will count function comparsions
 }
 
 // Macros to simplify accessing instrumentation counters:
 #define PIXMEM InstrCount[0]
-// Add more macros here...
+#define COUNT  InstrCount[1]
 
 // TIP: Search for PIXMEM or InstrCount to see where it is incremented!
 
@@ -696,6 +695,9 @@ int ImageMatchSubImage(Image img1, int x, int y, Image img2) {
   for (int i = 0; i < img2->height; i++) {
     //Iterar sobre cada pixel dessa linha
     for (int j = 0; j < img2->width; j++) {
+    
+      COUNT++;  // count function comparisons
+      
       //Verificar se o pixel na posição (x + j, y + i) da img1 é diferente do pixel na posição (j, i) da img2
       if (ImageGetPixel(img1, x + j, y + i) != ImageGetPixel(img2, j, i)) {
         //Se forem diferentes, entao nao encontramos a img2 dentro da img1
