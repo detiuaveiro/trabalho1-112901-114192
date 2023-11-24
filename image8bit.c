@@ -11,11 +11,11 @@
 /// 2013, 2023
 
 // Student authors (fill in below):
-// NMec:  Name:
+// NMec:112901  Name:Tiago Albuquerque
+// NMex:114192  Name:Diogo Domingues
 // 
 // 
-// 
-// Date:
+// Date:24/11/2023
 //
 
 #include "image8bit.h"
@@ -722,14 +722,16 @@ int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) {
   for (int i = 0; i < ImageHeight(img1) - ImageHeight(img2); i++) {
     //Iterar sobre cada pixel dessa linha
     for (int j = 0; j < ImageWidth(img1) - ImageWidth(img2); j++) {
-
+      //Chamar a função ImageMatchSubImage para verificar se a img2 existe dentro da img1 na posição (j, i)
       if (ImageMatchSubImage(img1, j, i, img2)) {
+        //Se existir, então definir os valores de px e py com os valores obtidos e retornar 1
         *px = j;
         *py = i;
         return 1;
       }
     }
   }
+  //Se não existir, então retornar 0
   return 0;
 }
 
