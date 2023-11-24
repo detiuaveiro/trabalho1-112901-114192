@@ -723,27 +723,7 @@ int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) {
     //Iterar sobre cada pixel dessa linha
     for (int j = 0; j < ImageWidth(img1) - ImageWidth(img2); j++) {
 
-      //Variável para guardar se os pixeis sao iguais ou diferentes
-      int match = 1;
-      
-      //Iterar sobre todas as linhas da img2
-      for (int k = 0; k < ImageHeight(img2); k++) {
-        //Iterar sobre cada pixel dessa linha
-        for (int l = 0; l < ImageWidth(img2); l++) {
-          //Verificar se o pixel na posição (j + l, i + k) da img1 é diferente do pixel na posição (l, k) da img2
-          if (ImageGetPixel(img1, j + l, i + k) != ImageGetPixel(img2, l, k)) {
-            //Se forem diferentes, entao nao encontramos a img2 dentro da img1
-            match = 0;
-            break;
-          }
-        }
-        //Se forem diferentes, entao nao encontramos a img2 dentro da img1
-        if (!match) {
-          break;
-        }
-      }
-      //Se forem iguais, entao encontramos a img2 dentro da img1
-      if (match) {
+      if (ImageMatchSubImage(img1, j, i, img2)) {
         *px = j;
         *py = i;
         return 1;
