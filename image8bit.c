@@ -175,7 +175,7 @@ Image ImageCreate(int width, int height, uint8 maxval) {
   assert(0 < maxval && maxval <= PixMax);
 
   //Alocar memória para a imagem
-  Image img = (Image)malloc(sizeof(struct image));
+  Image img = calloc(1,sizeof(struct image));
   //Verificar se a alocação de memória para a imagem foi bem sucedida
   if (img == NULL) {
     //Se não foi bem sucedida imprimir a mensagem de erro
@@ -817,18 +817,21 @@ void ImageBlur(Image img, int dx, int dy) {
 
 
 void ImageBlur(Image img, int dx, int dy) {
+  //Verificar se a imagem existe
   assert(img != NULL);
 
+  //Obter a largura e a altura da imagem para não ter que chamar as funções ImageWidth e ImageHeight nos for loops
   int imgWidth = ImageWidth(img);
   int imgHeight = ImageHeight(img);
 
-  // Create a temporary image with the same dimensions as the original image
+  //Criar uma nova imagem temporaria
   Image blurImg = ImageCreate(imgWidth, imgHeight, ImageMaxval(img));
+  //Verificar se a imagem temporaria foi criada
   if (blurImg == NULL) {
     return;
   }
 
-  // Store the pixels of the image in a 2D array
+  //Criar um array 2D para guardar os pixeis da imagem original
   uint8 **pixels = malloc(imgHeight * sizeof(uint8 *));
   for (int i = 0; i < imgHeight; i++) {
     pixels[i] = malloc(imgWidth * sizeof(uint8));
@@ -837,42 +840,53 @@ void ImageBlur(Image img, int dx, int dy) {
     }
   }
 
+  //Iterar sobre todas as linhas da imagem
   for (int i = 0; i < imgHeight; i++) {
+    //Iterar sobre cada pixel dessa linha
     for (int j = 0; j < imgWidth; j++) {
+      //Variável para guardar a soma dos pixeis
       int sum = 0;
+      //Variável para guardar o número de pixeis
       int count = 0;
 
-      // Limit the boundaries of the rectangle to the image limits
+      //Calcular os limites do retangulo [y-dy, y+dy] e [x-dx, x+dx]
       int startY = i - dy < 0 ? 0 : i - dy;
       int endY = i + dy >= imgHeight ? imgHeight - 1 : i + dy;
       int startX = j - dx < 0 ? 0 : j - dx;
       int endX = j + dx >= imgWidth ? imgWidth - 1 : j + dx;
 
+      //Iterar sobre os pixeis dentro do retangulo [y-dy, y+dy] e [x-dx, x+dx]
       for (int k = startY; k <= endY; k++) {
         for (int l = startX; l <= endX; l++) {
+          //Somar o valor do pixel na posição (l, k) à variável sum e incrementar a variável count
           sum += pixels[k][l];
           count++;
         }
       }
-
+      //Calcular a média do valor dos pixeis dentro do retangulo
       uint8 pixelValue = (uint8)((sum + count * 0.5) / count);
+      //Definir o valor do pixel na imagem blurImg na posição (j, i) com o valor obtido
       ImageSetPixel(blurImg, j, i, pixelValue);
     }
   }
 
-  // Copy the blurred image back to the original image
+  //Copiar a imagem blurImg para a imagem img:
+  //Iterar sobre todas as linhas da imagem
   for (int i = 0; i < imgHeight; i++) {
+    //Iterar sobre cada pixel dessa linha
     for (int j = 0; j < imgWidth; j++) {
+      //Definir o valor do pixel na imagem img na posição (j, i) com o valor obtido da imagem blurImg
       uint8 pixelValue = ImageGetPixel(blurImg, j, i);
       ImageSetPixel(img, j, i, pixelValue);
     }
   }
 
-  // Free the 2D array
+  //Libertar a memoria alocada para o array de pixeis da imagem original
   for (int i = 0; i < imgHeight; i++) {
     free(pixels[i]);
   }
   free(pixels);
 
+  //Apagar a imagem blurImg
   ImageDestroy(&blurImg);
 }
