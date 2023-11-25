@@ -718,10 +718,16 @@ int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) {
   assert(img1 != NULL);
   assert(img2 != NULL);
 
+  //Obter a largura e a altura da img1 e da img2 para não ter que chamar as funções ImageWidth e ImageHeight nos for loops
+  int img1Width = ImageWidth(img1);
+  int img1Height = ImageHeight(img1);
+  int img2Width = ImageWidth(img2);
+  int img2Height = ImageHeight(img2);
+
   //Iterar sobre todas as linhas da img1
-  for (int i = 0; i < ImageHeight(img1) - ImageHeight(img2); i++) {
+  for (int i = 0; i < img1Height - img2Height; i++) {
     //Iterar sobre cada pixel dessa linha
-    for (int j = 0; j < ImageWidth(img1) - ImageWidth(img2); j++) {
+    for (int j = 0; j < img1Width - img2Width; j++) {
       //Chamar a função ImageMatchSubImage para verificar se a img2 existe dentro da img1 na posição (j, i)
       if (ImageMatchSubImage(img1, j, i, img2)) {
         //Se existir, então definir os valores de px e py com os valores obtidos e retornar 1
