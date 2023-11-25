@@ -168,7 +168,7 @@ void ImageInit(void) { ///
 /// (The caller is responsible for destroying the returned image!)
 /// On failure, returns NULL and errno/errCause are set accordingly.
 Image ImageCreate(int width, int height, uint8 maxval) {
-  //Verificar se a largura e a altura da imagem sao positivas
+  //Verificar se a largura e a altura da imagem são positivas
   assert(width >= 0);
   assert(height >= 0);
   //Verificar se o maxval da imagem é maior que 0 e menor ou igual ao PixMax
