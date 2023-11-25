@@ -696,7 +696,8 @@ int ImageMatchSubImage(Image img1, int x, int y, Image img2) {
     //Iterar sobre cada pixel dessa linha
     for (int j = 0; j < img2->width; j++) {
     
-      COUNT += 1;  // Increment COUNT for each comparison
+      //Incrementar o contador de comparações
+      COUNT += 1;
       
       //Verificar se o pixel na posição (x + j, y + i) da img1 é diferente do pixel na posição (j, i) da img2
       if (ImageGetPixel(img1, x + j, y + i) != ImageGetPixel(img2, j, i)) {
