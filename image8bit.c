@@ -742,6 +742,10 @@ int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) {
 /// Each pixel is substituted by the mean of the pixels in the rectangle
 /// [x-dx, x+dx]x[y-dy, y+dy].
 /// The image is changed in-place.
+
+
+
+/*                                                    PRIMEIRA IMPLEMENTAÇAO
 void ImageBlur(Image img, int dx, int dy) {
   //Verificar se a imagem existe
   assert(img != NULL);
@@ -797,5 +801,72 @@ void ImageBlur(Image img, int dx, int dy) {
   }
 
   //Apagar a imagem blurImg para libertar a memoria alocada
+  ImageDestroy(&blurImg);
+}
+
+
+
+*/
+
+
+
+void ImageBlur(Image img, int dx, int dy) {
+  assert(img != NULL);
+
+  int imgWidth = ImageWidth(img);
+  int imgHeight = ImageHeight(img);
+
+  // Create a temporary image with the same dimensions as the original image
+  Image blurImg = ImageCreate(imgWidth, imgHeight, ImageMaxval(img));
+  if (blurImg == NULL) {
+    return;
+  }
+
+  // Store the pixels of the image in a 2D array
+  uint8 **pixels = malloc(imgHeight * sizeof(uint8 *));
+  for (int i = 0; i < imgHeight; i++) {
+    pixels[i] = malloc(imgWidth * sizeof(uint8));
+    for (int j = 0; j < imgWidth; j++) {
+      pixels[i][j] = ImageGetPixel(img, j, i);
+    }
+  }
+
+  for (int i = 0; i < imgHeight; i++) {
+    for (int j = 0; j < imgWidth; j++) {
+      int sum = 0;
+      int count = 0;
+
+      // Limit the boundaries of the rectangle to the image limits
+      int startY = i - dy < 0 ? 0 : i - dy;
+      int endY = i + dy >= imgHeight ? imgHeight - 1 : i + dy;
+      int startX = j - dx < 0 ? 0 : j - dx;
+      int endX = j + dx >= imgWidth ? imgWidth - 1 : j + dx;
+
+      for (int k = startY; k <= endY; k++) {
+        for (int l = startX; l <= endX; l++) {
+          sum += pixels[k][l];
+          count++;
+        }
+      }
+
+      uint8 pixelValue = (uint8)((sum + count * 0.5) / count);
+      ImageSetPixel(blurImg, j, i, pixelValue);
+    }
+  }
+
+  // Copy the blurred image back to the original image
+  for (int i = 0; i < imgHeight; i++) {
+    for (int j = 0; j < imgWidth; j++) {
+      uint8 pixelValue = ImageGetPixel(blurImg, j, i);
+      ImageSetPixel(img, j, i, pixelValue);
+    }
+  }
+
+  // Free the 2D array
+  for (int i = 0; i < imgHeight; i++) {
+    free(pixels[i]);
+  }
+  free(pixels);
+
   ImageDestroy(&blurImg);
 }
