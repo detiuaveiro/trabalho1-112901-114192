@@ -748,145 +748,52 @@ int ImageLocateSubImage(Image img1, int* px, int* py, Image img2) {
 /// Each pixel is substituted by the mean of the pixels in the rectangle
 /// [x-dx, x+dx]x[y-dy, y+dy].
 /// The image is changed in-place.
-
-
-
-/*                                                    PRIMEIRA IMPLEMENTAÇAO
 void ImageBlur(Image img, int dx, int dy) {
-  //Verificar se a imagem existe
+  // Verificar se a imagem existe
   assert(img != NULL);
 
-  //Criar uma nova imagem temporaria
-  Image blurImg = ImageCreate(ImageWidth(img), ImageHeight(img), ImageMaxval(img));
-
-  //Verificar se a imagem temporaria foi criada
-  if (blurImg == NULL) {
-    return;
-  }
-
-  //Iterar sobre todas as linhas da imagem
-  for (int i = 0; i < img->height; i++) {
-    //Iterar sobre cada pixel dessa linha
-    for (int j = 0; j < img->width; j++) {
-
-      //Variável para guardar a soma dos pixeis
-      int sum = 0;
-      //Variável para guardar o número de pixeis
-      int count = 0;
-
-      //Iterar sobre os pixeis dentro do retangulo [y-dy, y+dy]
-      for (int k = i - dy; k <= i + dy; k++) {
-        //Iterar sobre os pixeis dentro do retangulo [x-dx, x+dx]
-        for (int l = j - dx; l <= j + dx; l++) {
-
-          //Verificar se o pixel na posição (l, k) existe
-          if (ImageValidPos(img, l, k)) {
-            //Se existir, somar o valor do pixel na posição (l, k) à variável sum e incrementar a variável count
-            sum += ImageGetPixel(img, l, k);
-            count++;
-          }
-        }
-      }   
-
-      //Calcular a média do valor dos pixeis dentro do retangulo
-      uint8 pixelValue = (uint8)((sum + count * 0.5 )/ count);
-      //Definir o valor do pixel na imagem blurImg na posição (j, i) com o valor obtido
-      ImageSetPixel(blurImg, j, i, pixelValue);
-    }
-  }
-
-  //Copiar a imagem blurImg para a imagem img:
-  //Iterar sobre todas as linhas da imagem
-  for (int i = 0; i < img->height; i++) {
-    //Iterar sobre cada pixel dessa linha
-    for (int j = 0; j < img->width; j++) {
-
-      //Definir o valor do pixel na imagem img na posição (j, i) com o valor obtido da imagem blurImg
-      ImageSetPixel(img, j, i, ImageGetPixel(blurImg, j, i));
-    }
-  }
-
-  //Apagar a imagem blurImg para libertar a memoria alocada
-  ImageDestroy(&blurImg);
-}
-
-
-
-*/
-
-
-
-void ImageBlur(Image img, int dx, int dy) {
-  //Verificar se a imagem existe
-  assert(img != NULL);
-
-  //Obter a largura e a altura da imagem para não ter que chamar as funções ImageWidth e ImageHeight nos for loops
+  // Obter a largura e a altura da imagem para não ter que chamar as funções ImageWidth e ImageHeight nos for loops
   int imgWidth = ImageWidth(img);
   int imgHeight = ImageHeight(img);
 
-  //Criar uma nova imagem temporaria
-  Image blurImg = ImageCreate(imgWidth, imgHeight, ImageMaxval(img));
-  //Verificar se a imagem temporaria foi criada
-  if (blurImg == NULL) {
-    return;
-  }
-
-  //Criar um array 2D para guardar os pixeis da imagem original
-  uint8 **pixels = malloc(imgHeight * sizeof(uint8 *));
+  // Criar um array 2D para guardar os pixeis da imagem original
+  uint8_t *pixels = (uint8_t *)calloc(imgHeight * imgWidth, sizeof(uint8_t));
   for (int i = 0; i < imgHeight; i++) {
-    pixels[i] = malloc(imgWidth * sizeof(uint8));
     for (int j = 0; j < imgWidth; j++) {
-      pixels[i][j] = ImageGetPixel(img, j, i);
+      pixels[G(img, i, j)] = ImageGetPixel(img, j, i);
     }
   }
 
-  //Iterar sobre todas as linhas da imagem
+  // Iterar sobre todas as linhas da imagem
   for (int i = 0; i < imgHeight; i++) {
-    //Iterar sobre cada pixel dessa linha
+    // Iterar sobre cada pixel dessa linha
     for (int j = 0; j < imgWidth; j++) {
-      //Variável para guardar a soma dos pixeis
+      // Variável para guardar a soma dos pixeis
       int sum = 0;
-      //Variável para guardar o número de pixeis
+      // Variável para guardar o número de pixeis
       int count = 0;
 
-      //Calcular os limites do retangulo [y-dy, y+dy] e [x-dx, x+dx]
+      // Calcular os limites do retângulo [y-dy, y+dy] e [x-dx, x+dx]
       int startY = i - dy < 0 ? 0 : i - dy;
       int endY = i + dy >= imgHeight ? imgHeight - 1 : i + dy;
       int startX = j - dx < 0 ? 0 : j - dx;
       int endX = j + dx >= imgWidth ? imgWidth - 1 : j + dx;
 
-      //Iterar sobre os pixeis dentro do retangulo [y-dy, y+dy] e [x-dx, x+dx]
+      // Iterar sobre os pixeis dentro do retângulo [y-dy, y+dy] e [x-dx, x+dx]
       for (int k = startY; k <= endY; k++) {
         for (int l = startX; l <= endX; l++) {
-          //Somar o valor do pixel na posição (l, k) à variável sum e incrementar a variável count
-          sum += pixels[k][l];
+          // Somar o valor do pixel na posição (l, k) à variável sum e incrementar a variável count
+          sum += pixels[G(img, k, l)];
           count++;
         }
       }
-      //Calcular a média do valor dos pixeis dentro do retangulo
-      uint8 pixelValue = (uint8)((sum + count * 0.5) / count);
-      //Definir o valor do pixel na imagem blurImg na posição (j, i) com o valor obtido
-      ImageSetPixel(blurImg, j, i, pixelValue);
-    }
-  }
-
-  //Copiar a imagem blurImg para a imagem img:
-  //Iterar sobre todas as linhas da imagem
-  for (int i = 0; i < imgHeight; i++) {
-    //Iterar sobre cada pixel dessa linha
-    for (int j = 0; j < imgWidth; j++) {
-      //Definir o valor do pixel na imagem img na posição (j, i) com o valor obtido da imagem blurImg
-      uint8 pixelValue = ImageGetPixel(blurImg, j, i);
+      // Calcular a média do valor dos pixeis dentro do retângulo
+      uint8_t pixelValue = (uint8_t)((sum + count * 0.5) / count);
+      // Definir o valor do pixel na imagem blurImg na posição (j, i) com o valor obtido
       ImageSetPixel(img, j, i, pixelValue);
     }
   }
 
-  //Libertar a memoria alocada para o array de pixeis da imagem original
-  for (int i = 0; i < imgHeight; i++) {
-    free(pixels[i]);
-  }
+  // Libertar a memória alocada para o array de pixeis da imagem original
   free(pixels);
-
-  //Apagar a imagem blurImg
-  ImageDestroy(&blurImg);
 }
