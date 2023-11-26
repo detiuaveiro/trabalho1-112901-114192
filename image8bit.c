@@ -694,7 +694,7 @@ int ImageMatchSubImage(Image img1, int x, int y, Image img2) {
   //Iterar sobre todas as linhas da img2
   for (int i = 0; i < ImageHeight(img2); i++) {
     //Iterar sobre cada pixel dessa linha
-    for (int j = 0; j < ImageWidth(img1); j++) {
+    for (int j = 0; j < ImageWidth(img2); j++) {
     
       //Incrementar o contador de comparações
       COUNT += 1;
