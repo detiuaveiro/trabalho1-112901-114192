@@ -692,9 +692,9 @@ int ImageMatchSubImage(Image img1, int x, int y, Image img2) {
   assert (ImageValidPos(img1, x, y));
 
   //Iterar sobre todas as linhas da img2
-  for (int i = 0; i < img2->height; i++) {
+  for (int i = 0; i < ImageHeight(img2); i++) {
     //Iterar sobre cada pixel dessa linha
-    for (int j = 0; j < img2->width; j++) {
+    for (int j = 0; j < ImageWidth(img1); j++) {
     
       //Incrementar o contador de comparações
       COUNT += 1;
